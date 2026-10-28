@@ -27,7 +27,7 @@ import { CookieService } from 'ngx-cookie-service';
           <label for="password" class="signin__label">Password</label>
           <input id="password" formControlName="password" type="password" class="signin__input" />
         </div>
-        <!-- Week 2 Minor (m-033): changed the button label from "Submit" to "Sign in" so the action matches the page's purpose and tells users exactly what the button does. -->
+        <!-- Week 2 Minor (m-033): changed the button label from "Submit" to "Sign In" so the action matches the page's purpose and tells users exactly what the button does. -->
         <input type="submit" class="signin__button" Value="Sign In" />
       </form>
       <a href="/" class="signin__return-link">Return to Home</a>
