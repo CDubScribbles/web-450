@@ -61,3 +61,24 @@ The courses repository consist of two directories: data-files and examples. The 
 git clone https://github.com/buwebdev/web-450.git
 cd web-450
 ```
+
+## Week 2 Major Task (M-068): Sales by Salesperson
+
+A new APRE report that totals sales for each salesperson.
+
+**What was added** (paths from the repo root)
+- `data-files/apre/apre-server/src/routes/reports/sales/index.js`: new `GET /api/reports/sales/salespeople` endpoint (groups the `sales` collection by salesperson and sums `amount`)
+- `data-files/apre/apre-server/test/routes/reports/sales/index.spec.js`: 3 new unit tests for the endpoint
+- `data-files/apre/apre-client/src/app/reports/sales/sales-by-salesperson/`: new component (table report) and its 3 unit tests
+- `app.routes.ts` and `main-layout.component.ts`: route and side-menu link (**Sales Reports → Sales by Salesperson**)
+
+**Run it**
+1. Server: `cd data-files/apre/apre-server`, then `npm install`, then `npm start` (http://localhost:3000)
+2. Client: `cd data-files/apre/apre-client`, then `npm install`, then `npm start` (http://localhost:4200)
+3. Sign in with the course test account (`mbrown` / `Password01`), then open **Sales Reports → Sales by Salesperson** (`/reports/sales/sales-by-salesperson`)
+
+**Run the tests**
+- Server: `cd data-files/apre/apre-server`, then `npm test` (28 tests, 3 new)
+- Client: `cd data-files/apre/apre-client`, then `npm test` (83 tests, 3 new; stop the watcher with Ctrl+C after it reports `TOTAL: 83 SUCCESS`)
+
+**Data note:** the shared `sales` collection has 14 distinct salesperson names, including short or partial entries such as "John", "Mike" and "Sarah" alongside "John Doe" and "Michael Johnson". The report shows each name as stored and does not merge them.

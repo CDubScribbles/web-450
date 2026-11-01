@@ -143,3 +143,72 @@ describe('Apre Sales Report API - Sales by Region', () => {
     });
   });
 });
+
+// Week 2 Major (M-068): tests for the sales-by-salesperson endpoint
+describe('Apre Sales Report API - Sales by Salesperson', () => {
+  beforeEach(() => {
+    mongo.mockClear();
+  });
+
+  // Test 1: totals come back grouped by salesperson
+  it('should fetch total sales for each salesperson', async () => {
+    mongo.mockImplementation(async (callback) => {
+      const db = {
+        collection: jest.fn().mockReturnThis(),
+        aggregate: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue([
+            { salesperson: 'Jane Smith', totalSales: 1500 },
+            { salesperson: 'John Doe', totalSales: 1000 }
+          ])
+        })
+      };
+      await callback(db);
+    });
+
+    const response = await request(app).get('/api/reports/sales/salespeople');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      { salesperson: 'Jane Smith', totalSales: 1500 },
+      { salesperson: 'John Doe', totalSales: 1000 }
+    ]);
+  });
+
+  // Test 2: no sales records at all returns an empty array, not an error
+  it('should return 200 and an empty array if there is no sales data', async () => {
+    mongo.mockImplementation(async (callback) => {
+      const db = {
+        collection: jest.fn().mockReturnThis(),
+        aggregate: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue([])
+        })
+      };
+      await callback(db);
+    });
+
+    const response = await request(app).get('/api/reports/sales/salespeople');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  // Test 3: the route groups by salesperson and sums amount
+  it('should group by salesperson and sum the amount field', async () => {
+    const aggregate = jest.fn().mockReturnValue({
+      toArray: jest.fn().mockResolvedValue([])
+    });
+    mongo.mockImplementation(async (callback) => {
+      const db = {
+        collection: jest.fn().mockReturnThis(),
+        aggregate
+      };
+      await callback(db);
+    });
+
+    await request(app).get('/api/reports/sales/salespeople');
+
+    const pipeline = aggregate.mock.calls[0][0];
+    expect(pipeline[0].$group._id).toBe('$salesperson');
+    expect(pipeline[0].$group.totalSales).toEqual({ $sum: '$amount' });
+  });
+});

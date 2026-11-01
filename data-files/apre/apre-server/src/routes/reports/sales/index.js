@@ -78,4 +78,47 @@ router.get('/regions/:region', (req, res, next) => {
   }
 });
 
+/**
+ * @description
+ *
+ * GET /salespeople
+ *
+ * Fetches total sales for every salesperson, grouped by salesperson.
+ * Week 2 Major (M-068): adapted from the /regions/:region route. The $match
+ * stage and the :region parameter are removed so the report covers all sales.
+ *
+ * Example:
+ * fetch('/salespeople')
+ *  .then(response => response.json())
+ *  .then(data => console.log(data));
+ */
+router.get('/salespeople', (req, res, next) => {
+  try {
+    mongo (async db => {
+      const salesBySalesperson = await db.collection('sales').aggregate([
+        {
+          $group: {
+            _id: '$salesperson',
+            totalSales: { $sum: '$amount' }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            salesperson: '$_id',
+            totalSales: 1
+          }
+        },
+        {
+          $sort: { salesperson: 1 }
+        }
+      ]).toArray();
+      res.send(salesBySalesperson);
+    }, next);
+  } catch (err) {
+    console.error('Error getting sales by salesperson: ', err);
+    next(err);
+  }
+});
+
 module.exports = router;
